@@ -1,0 +1,9 @@
+#pragma once
+
+#include "types.h"
+
+#define OPERAMATH_ATAN_TABLE_ENTRY_COUNT 258
+#define OPERAMATH_SINE_TABLE_ENTRY_COUNT 4098
+
+extern int32 atantable[OPERAMATH_ATAN_TABLE_ENTRY_COUNT];
+extern int32 sintable[OPERAMATH_SINE_TABLE_ENTRY_COUNT];

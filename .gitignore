@@ -1,0 +1,29 @@
+# Build products
+/build/
+/iso/
+
+# Local disc staging and copyrighted retail data
+/takeme/
+/*.iso
+/*.bin
+/*.cue
+/*.chd
+/*.xdelta
+
+# Local DevKit selection
+/.devkit-path
+
+# Reconstruction evidence and generated analysis products (not release inputs)
+/.codegraph/
+/needle/
+/reconstruction-log.md
+/coverage-review.yaml
+/tools/
+/*.plist
+/opera-test-harness-runs/
+/test-harness-runs/
+
+# Editor and local backup files
+*~
+__pycache__/
+*.pyc

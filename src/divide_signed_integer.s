@@ -1,0 +1,84 @@
+	AREA	| divide_signed_integer_code |, CODE, READONLY
+	; extern int divide_signed_integer(int dividend, int divisor);
+	EXPORT	divide_signed_integer
+
+	MACRO
+$label	SIGNED_DIVIDE_STEP $shift
+$label	rsbs	r2, r1, r0, lsr #$shift
+	sbchs	r0, r0, r1, lsl #$shift
+	adc	r3, r3, r3
+	MEND
+
+divide_signed_integer
+	eor	ip, r0, r1
+	cmp	r0, #0x80000000
+	rsbhs	r0, r0, #0
+	cmp	r1, #0x80000000
+	rsbhs	r1, r1, #0
+	mov	r3, #0
+	rsbs	r2, r1, r0, lsr #24
+	bhs	signed_divide_high
+	rsbs	r2, r1, r0, lsr #16
+	bhs	signed_divide_middle
+	rsbs	r2, r1, r0, lsr #8
+	blo	signed_divide_low
+	SIGNED_DIVIDE_STEP 15
+	SIGNED_DIVIDE_STEP 14
+	SIGNED_DIVIDE_STEP 13
+	SIGNED_DIVIDE_STEP 12
+	SIGNED_DIVIDE_STEP 11
+	SIGNED_DIVIDE_STEP 10
+	SIGNED_DIVIDE_STEP 9
+	SIGNED_DIVIDE_STEP 8
+signed_divide_low
+	SIGNED_DIVIDE_STEP 7
+	SIGNED_DIVIDE_STEP 6
+	SIGNED_DIVIDE_STEP 5
+	SIGNED_DIVIDE_STEP 4
+	SIGNED_DIVIDE_STEP 3
+	SIGNED_DIVIDE_STEP 2
+	SIGNED_DIVIDE_STEP 1
+	rsbs	r2, r1, r0
+	adc	r0, r3, r3
+	cmp	ip, #0x80000000
+	rsbhs	r0, r0, #0
+	mov	pc, lr
+signed_divide_high
+	SIGNED_DIVIDE_STEP 30
+	SIGNED_DIVIDE_STEP 29
+	SIGNED_DIVIDE_STEP 28
+	SIGNED_DIVIDE_STEP 27
+	SIGNED_DIVIDE_STEP 26
+	SIGNED_DIVIDE_STEP 25
+	SIGNED_DIVIDE_STEP 24
+signed_divide_middle
+	SIGNED_DIVIDE_STEP 23
+	SIGNED_DIVIDE_STEP 22
+	SIGNED_DIVIDE_STEP 21
+	SIGNED_DIVIDE_STEP 20
+	SIGNED_DIVIDE_STEP 19
+	SIGNED_DIVIDE_STEP 18
+	SIGNED_DIVIDE_STEP 17
+	SIGNED_DIVIDE_STEP 16
+	SIGNED_DIVIDE_STEP 15
+	SIGNED_DIVIDE_STEP 14
+	SIGNED_DIVIDE_STEP 13
+	SIGNED_DIVIDE_STEP 12
+	SIGNED_DIVIDE_STEP 11
+	SIGNED_DIVIDE_STEP 10
+	SIGNED_DIVIDE_STEP 9
+	SIGNED_DIVIDE_STEP 8
+	SIGNED_DIVIDE_STEP 7
+	SIGNED_DIVIDE_STEP 6
+	SIGNED_DIVIDE_STEP 5
+	SIGNED_DIVIDE_STEP 4
+	SIGNED_DIVIDE_STEP 3
+	SIGNED_DIVIDE_STEP 2
+	SIGNED_DIVIDE_STEP 1
+	rsbs	r2, r1, r0
+	adc	r0, r3, r3
+	cmp	ip, #0x80000000
+	rsbhs	r0, r0, #0
+	mov	pc, lr
+
+	END

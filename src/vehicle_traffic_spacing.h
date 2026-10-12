@@ -1,0 +1,7 @@
+#pragma once
+
+#include "base_types.h"
+
+#define VEHICLE_TRAFFIC_SPACING_PRESET_COUNT 3
+
+extern const int32 G_VEHICLE_TRAFFIC_SPACING_PRESETS[VEHICLE_TRAFFIC_SPACING_PRESET_COUNT];

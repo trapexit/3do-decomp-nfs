@@ -1,0 +1,85 @@
+script_basepath() {
+    if test -n "$BASH" ; then filepath=$BASH_SOURCE
+    elif test -n "$TMOUT"; then filepath=${.sh.file}
+    elif test -n "$ZSH_NAME" ; then filepath=${(%):-%x}
+    elif test ${0##*/} = dash; then x=$(lsof -p $$ -Fn0 | tail -1); filepath=${x#n}
+    else filepath=$0
+    fi
+
+    filepath=$(readlink -f "${filepath}")
+    dirpath=$(dirname "${filepath}")
+
+    echo $(cd "${dirpath}" && pwd)
+}
+
+deactivate-env() {
+    _remove_path_entry() {
+        target_path="$1"
+        cleaned_path=""
+        old_ifs="$IFS"
+        segment=""
+
+        IFS=':'
+        for segment in $PATH; do
+            if [ "$segment" = "$target_path" ] || [ -z "$segment" ]; then
+                continue
+            fi
+
+            if [ -z "$cleaned_path" ]; then
+                cleaned_path="$segment"
+            else
+                cleaned_path="$cleaned_path:$segment"
+            fi
+        done
+        IFS="$old_ifs"
+
+        PATH="$cleaned_path"
+    }
+
+    if [ -z "$TDO_DEVKIT_PATH" ]; then
+        echo "3DO development environment not activated."
+        return 1
+    fi
+
+    if [ -n "$MSYSTEM" ] || [[ "$OSTYPE" == *msys* ]]; then
+        _remove_path_entry "$TDO_DEVKIT_PATH/bin/buildtools/win"
+        _remove_path_entry "$TDO_DEVKIT_PATH/bin/tools/win"
+        _remove_path_entry "$TDO_DEVKIT_PATH/bin/compiler/win"
+    else
+        _remove_path_entry "$TDO_DEVKIT_PATH/bin/buildtools/linux"
+        _remove_path_entry "$TDO_DEVKIT_PATH/bin/tools/linux"
+        _remove_path_entry "$TDO_DEVKIT_PATH/bin/compiler/linux"
+    fi
+    unset -f _remove_path_entry
+    export PATH
+    unset TDO_DEVKIT_PATH
+    unset -f deactivate-env
+    echo "3DO development environment deactivated."
+}
+
+if [ -n "$TDO_DEVKIT_PATH" ]; then
+    basepath="$TDO_DEVKIT_PATH"
+elif [ -f ".devkit-path" ]; then
+    basepath=$(cat .devkit-path)
+else
+    basepath=$(script_basepath)
+fi
+
+if [ -n "$MSYSTEM" ] || [[ "$OSTYPE" == *msys* ]]; then
+    compiler_path="$basepath/bin/compiler/win/armcc.exe"
+    tool_platform=win
+else
+    compiler_path="$basepath/bin/compiler/linux/armcc"
+    tool_platform=linux
+fi
+
+if [ ! -f "$basepath/include/3do/kernel.h" ] || [ ! -x "$compiler_path" ]; then
+    echo "Error: Activation failed. No complete 3DO DevKit at: $basepath" >&2
+    echo "Set TDO_DEVKIT_PATH or .devkit-path to your installed DevKit checkout." >&2
+    return 1 2>/dev/null || exit 1
+fi
+
+export TDO_DEVKIT_PATH="$basepath"
+export PATH="$basepath/bin/buildtools/$tool_platform:$basepath/bin/tools/$tool_platform:$basepath/bin/compiler/$tool_platform:$PATH"
+unset compiler_path tool_platform
+echo "3DO development environment activated. Run 'deactivate-env' to deactivate."
